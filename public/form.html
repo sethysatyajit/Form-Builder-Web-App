@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .form-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-description {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .form-field {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-field label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-field input[type="text"],
+        .form-field input[type="email"],
+        .form-field input[type="number"],
+        .form-field input[type="date"],
+        .form-field textarea,
+        .form-field select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-field input:focus,
+        .form-field textarea:focus,
+        .form-field select:focus {
+            outline: none;
+            border-color: #6a11cb;
+        }
+        
+        .option {
+            margin-bottom: 0.5rem;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(38, 117, 252, 0.3);
+        }
+        
+        .thank-you-message {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .thank-you-message i {
+            font-size: 4rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+        
+        .thank-you-message h2 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .thank-you-message p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #6a11cb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fas fa-form"></i>
+                    <span>FormBuilder</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div id="form-container" class="form-container">
+                <!-- Form will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>FormBuilder</h3>
+                    <p>Create beautiful forms and collect responses effortlessly.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/" class="footer-link">Create a Form</a>
+                    <a href="#" class="footer-link">Privacy</a>
+                    <a href="#" class="footer-link">Terms</a>
+                </div>
+                <div class="footer-creator">
+                    <p>Created by <strong>Satyajit Sethy</strong></p>
+                    <a href="https://github.com/sethysatyajit" target="_blank" class="github-link">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Satyajit Sethy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get form ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const formId = urlParams.get('id');
+            
+            if (!formId) {
+                document.getElementById('form-container').innerHTML = `
+                    <div class="thank-you-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h2>Form Not Found</h2>
+                        <p>This form doesn't exist or has been deleted.</p>
+                        <a href="/" class="back-link">Create your own form</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Load form data from server
+            fetch(`/forms/${formId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Form not found');
+                    }
+                    return response.json();
+                })
+                .then(formData => {
+                    renderForm(formData);
+                })
+                .catch(error => {
+                    document.getElementById('form-container').innerHTML = `
+                        <div class="thank-you-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h2>Form Not Found</h2>
+                            <p>This form doesn't exist or has been deleted.</p>
+                            <a href="/" class="back-link">Create your own form</a>
+                        </div>
+                    `;
+                });
+            
+            function renderForm(formData) {
+                let formHTML = `
+                    <div class="form-header">
+                        <h1 class="form-title">${formData.title}</h1>
+                        ${formData.description ? `<p class="form-description">${formData.description}</p>` : ''}
+                    </div>
+                    <form id="response-form">
+                `;
+                
+                formData.fields.forEach(field => {
+                    formHTML += `<div class="form-field">`;
+                    
+                    switch(field.type) {
+                        case 'text':
+                        case 'email':
+                        case 'number':
+                        case 'date':
+                            formHTML += `
+                                <label for="${field.id}">${field.question} ${field.required ? '<span class="required">*</span>' : ''}</label>
+                                <input type="${field.type}" id="${field.id}" name="${field.id}" 
+                                    placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}>
+                            `;
+                            break;
+                        case 'textarea':
+                            formHTML += `
+                                <label for="${field.id}">${field.question} ${field.required ? '<span class="required">*</span>' : ''}</label>
+                                <textarea id="${field.id}" name="${field.id}" 
+                                    placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}></textarea>
+                            `;
+                            break;
+                        case 'radio':
+                            formHTML += `
+                                <label>${field.question} ${field.required ? '<span class="required">*</span>' : ''}</label>
+                                ${field.options.map((option, index) => `
+                                    <div class="option">
+                                        <input type="radio" id="${field.id}-${index}" name="${field.id}" 
+                                            value="${option}" ${field.required ? 'required' : ''}>
+                                        <label for="${field.id}-${index}">${option}</label>
+                                    </div>
+                                `).join('')}
+                            `;
+                            break;
+                        case 'checkbox':
+                            formHTML += `
+                                <label>${field.question} ${field.required ? '<span class="required">*</span>' : ''}</label>
+                                ${field.options.map((option, index) => `
+                                    <div class="option">
+                                        <input type="checkbox" id="${field.id}-${index}" name="${field.id}[]" value="${option}">
+                                        <label for="${field.id}-${index}">${option}</label>
+                                    </div>
+                                `).join('')}
+                            `;
+                            break;
+                        case 'dropdown':
+                            formHTML += `
+                                <label for="${field.id}">${field.question} ${field.required ? '<span class="required">*</span>' : ''}</label>
+                                <select id="${field.id}" name="${field.id}" ${field.required ? 'required' : ''}>
+                                    <option value="">Select an option</option>
+                                    ${field.options.map(option => `
+                                        <option value="${option}">${option}</option>
+                                    `).join('')}
+                                </select>
+                            `;
+                            break;
+                    }
+                    
+                    formHTML += `</div>`;
+                });
+                
+                formHTML += `
+                    <button type="submit" class="submit-btn">Submit</button>
+                    </form>
+                `;
+                
+                document.getElementById('form-container').innerHTML = formHTML;
+                
+                // Add form submission handler
+                document.getElementById('response-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const formObject = {};
+                    
+                    for (let [key, value] of formData.entries()) {
+                        if (key.endsWith('[]')) {
+                            const baseKey = key.slice(0, -2);
+                            if (!formObject[baseKey]) {
+                                formObject[baseKey] = [];
+                            }
+                            formObject[baseKey].push(value);
+                        } else {
+                            formObject[key] = value;
+                        }
+                    }
+                    
+                    // Submit the form data
+                    fetch(`/submit/${formId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formObject)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Submission failed');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('form-container').innerHTML = `
+                            <div class="thank-you-message">
+                                <i class="fas fa-check-circle"></i>
+                                <h2>Thank You!</h2>
+                                <p>Your response has been recorded successfully.</p>
+                                <a href="/" class="back-link">Create your own form</a>
+                            </div>
+                        `;
+                    })
+                    .catch(error => {
+                        alert('There was an error submitting your response. Please try again.');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
